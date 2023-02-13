@@ -27,8 +27,8 @@ sample <- sample %>%
                              "Não" = "A"))
 
 sample_reg <- sample %>% 
-  mutate(REGIAO = substr(as.character(CO_MUNICIPIO_PROVA), 1, 1)) %>% 
-  mutate(across(REGIAO, as_factor)) %>% 
+  mutate(REGIAO = substr(as.character(CO_MUNICIPIO_PROVA), 1, 1),
+         across(REGIAO, as_factor)) %>% 
   mutate(REGIAO = fct_collapse(REGIAO,
                                "Norte" = "1",
                                "Nordeste" = "2",
@@ -36,32 +36,27 @@ sample_reg <- sample %>%
                                "Sul" = "4",
                                "Centro-Oeste" = "5"),
          COVID = as_factor(ifelse(
-           fct_match(NU_ANO, c("2020", "2021")), "Sim", "Não")))
+           fct_match(NU_ANO, c("2020", "2021")), "Sim", "Não")),
+         NU_NOTA_OBJETIVA = (NU_NOTA_CH + NU_NOTA_CN + NU_NOTA_LC + NU_NOTA_MT) / 4) %>%
+  mutate(RACA = TP_COR_RACA, EDUC_MAE = Q002, INTERNET = Q025) %>% 
+  select(NU_INSCRICAO, RACA, EDUC_MAE, INTERNET, REGIAO, COVID,
+         NU_NOTA_CH, NU_NOTA_CN, NU_NOTA_LC, NU_NOTA_MT, NU_NOTA_REDACAO, NU_NOTA_OBJETIVA)
 
-
-sample <- sample %>% 
-  mutate(COVID = as_factor(ifelse(
-    fct_match(NU_ANO, c("2020", "2021")), "Sim", "Não")))
-
-sample <- sample %>% 
-  mutate(NU_NOTA_OBJETIVA = (NU_NOTA_CH + NU_NOTA_CN + NU_NOTA_LC + NU_NOTA_MT) / 4)
-
-sample %>% 
-  summarise(internet = fct_count(Q025))
-sample %>% 
-  summarise(regiao = fct_count(CO_REGIAO))
-sample %>% 
-  summarise(escolaridade = fct_count(Q002)) 
-sample %>% 
-  summarise(raca = fct_count(TP_COR_RACA))
-sample %>% 
+sample_reg %>% 
+  summarise(internet = fct_count(INTERNET))
+sample_reg %>% 
+  summarise(regiao = fct_count(REGIAO))
+sample_reg %>% 
+  summarise(escolaridade = fct_count(EDUC_MAE)) 
+sample_reg %>% 
+  summarise(raca = fct_count(RACA))
+sample_reg %>% 
   summarise(covid = fct_count(COVID))
 
-sample_reg <- sample %>% 
-  filter(!is.na(Q025) & !is.na(Q002) & TP_COR_RACA != "Não declarado"
-         & !is.na(NU_NOTA_OBJETIVA) & !is.na(NU_NOTA_REDACAO) & Q002 != "Não sei") %>% 
-  select(TP_COR_RACA, Q002, CO_REGIAO, Q025, COVID, NU_NOTA_CH, NU_NOTA_CN, NU_NOTA_LC, NU_NOTA_MT, NU_NOTA_OBJETIVA, NU_NOTA_REDACAO)
-
-model <- lm(NU_NOTA_OBJETIVA ~ TP_COR_RACA + Q002 + CO_REGIAO + Q025 + COVID + 
-              COVID * (TP_COR_RACA + Q002 + CO_REGIAO + Q025), 
+model <- lm(NU_NOTA_OBJETIVA ~ RACA + EDUC_MAE + REGIAO + INTERNET + COVID + 
+              COVID * (RACA + EDUC_MAE + REGIAO + INTERNET), 
             data = sample_reg); summary(model)
+
+saveRDS(model, file = "model1.rda")
+
+
