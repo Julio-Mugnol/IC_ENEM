@@ -1,4 +1,5 @@
 library(tidyverse)
+library(MASS)
 
 sample <- data.table::fread(input='sample/sample1.csv',
                             integer64='character',
@@ -55,8 +56,15 @@ sample_reg %>%
 
 model <- lm(NU_NOTA_OBJETIVA ~ RACA + EDUC_MAE + REGIAO + INTERNET + COVID + 
               COVID * (RACA + EDUC_MAE + REGIAO + INTERNET), 
-            data = sample_reg); summary(model)
+            data = sample_reg)
+summary(model)
 
-saveRDS(model, file = "model1.rda")
+robust <- rlm(NU_NOTA_OBJETIVA ~ RACA + EDUC_MAE + REGIAO + INTERNET + COVID + 
+                COVID * (RACA + EDUC_MAE + REGIAO + INTERNET), 
+              data = sample_reg)
+summary(robust)
+
+saveRDS(model, file = "model/model1.rda")
+saveRDS(robust, file = "model/robust1.rda")
 
 
