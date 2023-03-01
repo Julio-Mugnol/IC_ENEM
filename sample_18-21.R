@@ -1,7 +1,7 @@
 library(data.table)
 library(tidyverse)
 
-setwd("C:/Dev/_INSPER/_IC")
+setwd("C:/Dev/_INSPER/IC_ENEM")
 memory.limit(24576)
 
 n <- 1e+05 # Sample size
@@ -25,6 +25,12 @@ sample_2018 <- ENEM_2018 %>%
          NU_NOTA_CH, NU_NOTA_CN, NU_NOTA_LC, NU_NOTA_MT, NU_NOTA_REDACAO) %>% 
   slice_sample(n = n)
 
+sample_2018 <- ENEM_2018[Q002 != "H" & TP_COR_RACA != 0 & TP_ST_CONCLUSAO == 2
+                         & !is.na(NU_NOTA_CH) & !is.na(NU_NOTA_CN) & !is.na(NU_NOTA_LC) & !is.na(NU_NOTA_MT) & !is.na(NU_NOTA_REDACAO)
+                         & TP_PRESENCA_CN & TP_PRESENCA_CH & TP_PRESENCA_LC & TP_PRESENCA_MT,
+                         .(NU_INSCRICAO, TP_COR_RACA, Q002, CO_MUNICIPIO_PROVA, Q025, NU_ANO,
+                           NU_NOTA_CH, NU_NOTA_CN, NU_NOTA_LC, NU_NOTA_MT, NU_NOTA_REDACAO)]
+
 rm(ENEM_2018)
 
 # 2019 ---------------
@@ -45,6 +51,12 @@ sample_2019 <- ENEM_2019 %>%
   select(NU_INSCRICAO, TP_COR_RACA, Q002, CO_MUNICIPIO_PROVA, Q025, NU_ANO,
          NU_NOTA_CH, NU_NOTA_CN, NU_NOTA_LC, NU_NOTA_MT, NU_NOTA_REDACAO) %>% 
   slice_sample(n = n)
+
+sample_2019 <- ENEM_2019[Q002 != "H" & TP_COR_RACA != 0 & TP_ST_CONCLUSAO == 2
+                         & !is.na(NU_NOTA_CH) & !is.na(NU_NOTA_CN) & !is.na(NU_NOTA_LC) & !is.na(NU_NOTA_MT) & !is.na(NU_NOTA_REDACAO)
+                         & TP_PRESENCA_CN & TP_PRESENCA_CH & TP_PRESENCA_LC & TP_PRESENCA_MT,
+                         .(NU_INSCRICAO, TP_COR_RACA, Q002, CO_MUNICIPIO_PROVA, Q025, NU_ANO,
+                           NU_NOTA_CH, NU_NOTA_CN, NU_NOTA_LC, NU_NOTA_MT, NU_NOTA_REDACAO)]
 
 rm(ENEM_2019)
 
@@ -67,6 +79,12 @@ sample_2020 <- ENEM_2020 %>%
          NU_NOTA_CH, NU_NOTA_CN, NU_NOTA_LC, NU_NOTA_MT, NU_NOTA_REDACAO) %>% 
   slice_sample(n = n)
 
+sample_2020 <- ENEM_2020[Q002 != "H" & TP_COR_RACA != 0 & TP_ST_CONCLUSAO == 2
+                         & !is.na(NU_NOTA_CH) & !is.na(NU_NOTA_CN) & !is.na(NU_NOTA_LC) & !is.na(NU_NOTA_MT) & !is.na(NU_NOTA_REDACAO)
+                         & TP_PRESENCA_CN & TP_PRESENCA_CH & TP_PRESENCA_LC & TP_PRESENCA_MT,
+                         .(NU_INSCRICAO, TP_COR_RACA, Q002, CO_MUNICIPIO_PROVA, Q025, NU_ANO,
+                           NU_NOTA_CH, NU_NOTA_CN, NU_NOTA_LC, NU_NOTA_MT, NU_NOTA_REDACAO)]
+
 rm(ENEM_2020)
 
 # 2021 ---------------
@@ -88,13 +106,19 @@ sample_2021 <- ENEM_2021 %>%
          NU_NOTA_CH, NU_NOTA_CN, NU_NOTA_LC, NU_NOTA_MT, NU_NOTA_REDACAO) %>% 
   slice_sample(n = n)
 
+sample_2021 <- ENEM_2021[Q002 != "H" & TP_COR_RACA != 0 & TP_ST_CONCLUSAO == 2
+                         & !is.na(NU_NOTA_CH) & !is.na(NU_NOTA_CN) & !is.na(NU_NOTA_LC) & !is.na(NU_NOTA_MT) & !is.na(NU_NOTA_REDACAO)
+                         & TP_PRESENCA_CN & TP_PRESENCA_CH & TP_PRESENCA_LC & TP_PRESENCA_MT,
+                         .(NU_INSCRICAO, TP_COR_RACA, Q002, CO_MUNICIPIO_PROVA, Q025, NU_ANO,
+                           NU_NOTA_CH, NU_NOTA_CN, NU_NOTA_LC, NU_NOTA_MT, NU_NOTA_REDACAO)]
+
 rm(ENEM_2021)
 
 
 # Full ---------------
 
 sample <- rbindlist(list(sample_2018, sample_2019, sample_2020, sample_2021), fill = TRUE)
-data.table::fwrite(sample, file="sample/sample1.csv")
+data.table::fwrite(sample, file="sample/sample_c.csv")
 
 sample <- data.table::fread(input='sample/sample1.csv',
                             integer64='character',
