@@ -1,7 +1,7 @@
 library(data.table)
 library(tidyverse)
 
-setwd("C:/Dev/_INSPER/_IC")
+setwd("C:/Dev/_INSPER/IC_ENEM")
 memory.limit(24576)
 
 catalog <- data.table("year" = character(), "group" = character(),
