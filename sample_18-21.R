@@ -17,18 +17,10 @@ ENEM_2018 <- data.table::fread(input='microdados_enem_2018/DADOS/MICRODADOS_ENEM
                                showProgress = TRUE)
 
 # Sampling
-sample_2018 <- ENEM_2018 %>% 
-  filter(Q002 != "H" & TP_COR_RACA != 0
-         & !is.na(NU_NOTA_CH) & !is.na(NU_NOTA_CN) & !is.na(NU_NOTA_LC) & !is.na(NU_NOTA_MT) & !is.na(NU_NOTA_REDACAO)
-         & TP_PRESENCA_CN & TP_PRESENCA_CH & TP_PRESENCA_LC & TP_PRESENCA_MT) %>% 
-  select(NU_INSCRICAO, TP_COR_RACA, Q002, CO_MUNICIPIO_PROVA, Q025, NU_ANO,
-         NU_NOTA_CH, NU_NOTA_CN, NU_NOTA_LC, NU_NOTA_MT, NU_NOTA_REDACAO) %>% 
-  slice_sample(n = n)
-
-sample_2018 <- ENEM_2018[Q002 != "H" & TP_COR_RACA != 0 & TP_ST_CONCLUSAO == 2
+sample_2018 <- ENEM_2018[Q002 != "H" & TP_COR_RACA != 0 & TP_ST_CONCLUSAO == 2 & TP_ESCOLA %in% 2:4
                          & !is.na(NU_NOTA_CH) & !is.na(NU_NOTA_CN) & !is.na(NU_NOTA_LC) & !is.na(NU_NOTA_MT) & !is.na(NU_NOTA_REDACAO)
                          & TP_PRESENCA_CN & TP_PRESENCA_CH & TP_PRESENCA_LC & TP_PRESENCA_MT,
-                         .(NU_INSCRICAO, TP_COR_RACA, Q002, CO_MUNICIPIO_PROVA, Q025, NU_ANO,
+                         .(NU_INSCRICAO, TP_COR_RACA, Q002, CO_MUNICIPIO_PROVA, Q025, NU_ANO, TP_ESCOLA,
                            NU_NOTA_CH, NU_NOTA_CN, NU_NOTA_LC, NU_NOTA_MT, NU_NOTA_REDACAO)]
 
 rm(ENEM_2018)
@@ -44,18 +36,10 @@ ENEM_2019 <- data.table::fread(input='microdados_enem_2019/DADOS/MICRODADOS_ENEM
                                showProgress = TRUE)
 
 # Sampling
-sample_2019 <- ENEM_2019 %>% 
-  filter(Q002 != "H" & TP_COR_RACA != 0
-         & !is.na(NU_NOTA_CH) & !is.na(NU_NOTA_CN) & !is.na(NU_NOTA_LC) & !is.na(NU_NOTA_MT) & !is.na(NU_NOTA_REDACAO)
-         & TP_PRESENCA_CN & TP_PRESENCA_CH & TP_PRESENCA_LC & TP_PRESENCA_MT) %>% 
-  select(NU_INSCRICAO, TP_COR_RACA, Q002, CO_MUNICIPIO_PROVA, Q025, NU_ANO,
-         NU_NOTA_CH, NU_NOTA_CN, NU_NOTA_LC, NU_NOTA_MT, NU_NOTA_REDACAO) %>% 
-  slice_sample(n = n)
-
-sample_2019 <- ENEM_2019[Q002 != "H" & TP_COR_RACA != 0 & TP_ST_CONCLUSAO == 2
+sample_2019 <- ENEM_2019[Q002 != "H" & TP_COR_RACA != 0 & TP_ST_CONCLUSAO == 2 & TP_ESCOLA %in% 2:4
                          & !is.na(NU_NOTA_CH) & !is.na(NU_NOTA_CN) & !is.na(NU_NOTA_LC) & !is.na(NU_NOTA_MT) & !is.na(NU_NOTA_REDACAO)
                          & TP_PRESENCA_CN & TP_PRESENCA_CH & TP_PRESENCA_LC & TP_PRESENCA_MT,
-                         .(NU_INSCRICAO, TP_COR_RACA, Q002, CO_MUNICIPIO_PROVA, Q025, NU_ANO,
+                         .(NU_INSCRICAO, TP_COR_RACA, Q002, CO_MUNICIPIO_PROVA, Q025, NU_ANO, TP_ESCOLA,
                            NU_NOTA_CH, NU_NOTA_CN, NU_NOTA_LC, NU_NOTA_MT, NU_NOTA_REDACAO)]
 
 rm(ENEM_2019)
@@ -71,18 +55,10 @@ ENEM_2020 <- data.table::fread(input='microdados_enem_2020/DADOS/MICRODADOS_ENEM
                                showProgress = TRUE)
 
 # Sampling
-sample_2020 <- ENEM_2020 %>% 
-  filter(Q002 != "H" & TP_COR_RACA != 0
-         & !is.na(NU_NOTA_CH) & !is.na(NU_NOTA_CN) & !is.na(NU_NOTA_LC) & !is.na(NU_NOTA_MT) & !is.na(NU_NOTA_REDACAO)
-         & TP_PRESENCA_CN & TP_PRESENCA_CH & TP_PRESENCA_LC & TP_PRESENCA_MT) %>% 
-  select(NU_INSCRICAO, TP_COR_RACA, Q002, CO_MUNICIPIO_PROVA, Q025, NU_ANO,
-         NU_NOTA_CH, NU_NOTA_CN, NU_NOTA_LC, NU_NOTA_MT, NU_NOTA_REDACAO) %>% 
-  slice_sample(n = n)
-
-sample_2020 <- ENEM_2020[Q002 != "H" & TP_COR_RACA != 0 & TP_ST_CONCLUSAO == 2
+sample_2020 <- ENEM_2020[Q002 != "H" & TP_COR_RACA != 0 & TP_ST_CONCLUSAO == 2 & TP_ESCOLA %in% 2:4
                          & !is.na(NU_NOTA_CH) & !is.na(NU_NOTA_CN) & !is.na(NU_NOTA_LC) & !is.na(NU_NOTA_MT) & !is.na(NU_NOTA_REDACAO)
                          & TP_PRESENCA_CN & TP_PRESENCA_CH & TP_PRESENCA_LC & TP_PRESENCA_MT,
-                         .(NU_INSCRICAO, TP_COR_RACA, Q002, CO_MUNICIPIO_PROVA, Q025, NU_ANO,
+                         .(NU_INSCRICAO, TP_COR_RACA, Q002, CO_MUNICIPIO_PROVA, Q025, NU_ANO, TP_ESCOLA,
                            NU_NOTA_CH, NU_NOTA_CN, NU_NOTA_LC, NU_NOTA_MT, NU_NOTA_REDACAO)]
 
 rm(ENEM_2020)
@@ -98,18 +74,10 @@ ENEM_2021 <- data.table::fread(input='microdados_enem_2021/DADOS/MICRODADOS_ENEM
                                showProgress = TRUE)
 
 # Sampling
-sample_2021 <- ENEM_2021 %>%
-  filter(Q002 != "H" & TP_COR_RACA != 0 & TP_COR_RACA != 6
-         & !is.na(NU_NOTA_CH) & !is.na(NU_NOTA_CN) & !is.na(NU_NOTA_LC) & !is.na(NU_NOTA_MT) & !is.na(NU_NOTA_REDACAO)
-         & TP_PRESENCA_CN & TP_PRESENCA_CH & TP_PRESENCA_LC & TP_PRESENCA_MT) %>% 
-  select(NU_INSCRICAO, TP_COR_RACA, Q002, CO_MUNICIPIO_PROVA, Q025, NU_ANO,
-         NU_NOTA_CH, NU_NOTA_CN, NU_NOTA_LC, NU_NOTA_MT, NU_NOTA_REDACAO) %>% 
-  slice_sample(n = n)
-
-sample_2021 <- ENEM_2021[Q002 != "H" & TP_COR_RACA != 0 & TP_ST_CONCLUSAO == 2
+sample_2021 <- ENEM_2021[Q002 != "H" & TP_COR_RACA != 0 & TP_ST_CONCLUSAO == 2 & TP_ESCOLA %in% 2:4
                          & !is.na(NU_NOTA_CH) & !is.na(NU_NOTA_CN) & !is.na(NU_NOTA_LC) & !is.na(NU_NOTA_MT) & !is.na(NU_NOTA_REDACAO)
                          & TP_PRESENCA_CN & TP_PRESENCA_CH & TP_PRESENCA_LC & TP_PRESENCA_MT,
-                         .(NU_INSCRICAO, TP_COR_RACA, Q002, CO_MUNICIPIO_PROVA, Q025, NU_ANO,
+                         .(NU_INSCRICAO, TP_COR_RACA, Q002, CO_MUNICIPIO_PROVA, Q025, NU_ANO, TP_ESCOLA,
                            NU_NOTA_CH, NU_NOTA_CN, NU_NOTA_LC, NU_NOTA_MT, NU_NOTA_REDACAO)]
 
 rm(ENEM_2021)
@@ -118,7 +86,7 @@ rm(ENEM_2021)
 # Full ---------------
 
 sample <- rbindlist(list(sample_2018, sample_2019, sample_2020, sample_2021), fill = TRUE)
-data.table::fwrite(sample, file="sample/sample_c.csv")
+data.table::fwrite(sample, file="sample/sample_c2.csv")
 
 sample <- data.table::fread(input='sample/sample1.csv',
                             integer64='character',
