@@ -56,21 +56,31 @@ fit <- lm(NU_NOTA ~ RACA + EDUC_MAE + REGIAO + ESCOLA + INTERNET + NU_ANO +
             data = sample_reg)
 summary(fit)
 
-fit_ch <- lm(NU_NOTA_CH ~ RACA + EDUC_MAE + REGIAO + ESCOLA + INTERNET + NU_ANO +
+fit.ch <- lm(NU_NOTA_CH ~ RACA + EDUC_MAE + REGIAO + ESCOLA + INTERNET + NU_ANO +
                COVID : (RACA + EDUC_MAE + REGIAO + ESCOLA + INTERNET), 
-             data = sample_reg); summary(fit_ch)
+             data = sample_reg)
+summary(fit.ch)
+
+fit.cn <- lm(NU_NOTA_CN ~ RACA + EDUC_MAE + REGIAO + ESCOLA + INTERNET + NU_ANO +
+               COVID : (RACA + EDUC_MAE + REGIAO + ESCOLA + INTERNET), 
+             data = sample_reg)
+summary(fit.cn)
+
+fit.lc <- lm(NU_NOTA_LC ~ RACA + EDUC_MAE + REGIAO + ESCOLA + INTERNET + NU_ANO +
+               COVID : (RACA + EDUC_MAE + REGIAO + ESCOLA + INTERNET), 
+             data = sample_reg)
+summary(fit.lc)
+
+fit.mt <- lm(NU_NOTA_MT ~ RACA + EDUC_MAE + REGIAO + ESCOLA + INTERNET + NU_ANO +
+               COVID : (RACA + EDUC_MAE + REGIAO + ESCOLA + INTERNET), 
+             data = sample_reg)
+summary(fit.mt)
+
 
 saveRDS(model, file = "model/model1.rda")
-saveRDS(robust, file = "model/robust1.rda")
 
 model <- readRDS(file = "model/model1.rda")
 summary(model)
 
-robust <- readRDS(file = "model/robust1.rda")
-summary(robust)
-
 ols_test_breusch_pagan(model)
-
-
-sample_reg %>% group_by(NU_ANO, ESCOLA) %>% summarise(mean = mean(NU_NOTA_OBJETIVA))
 
