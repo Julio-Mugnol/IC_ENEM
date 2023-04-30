@@ -4,7 +4,7 @@ library(ggthemes)
 library(ggpubr)
 library(scales)
 
-catalog <- data.table::fread(input="catalog.csv")
+catalog <- data.table::fread(input="sample/catalog.csv")
 catalog <- catalog %>% 
   filter(group %in% c("todos", "pre_par_ind", "bra_ama")) %>% 
   mutate(across(c(group, year), as_factor)) %>% 
