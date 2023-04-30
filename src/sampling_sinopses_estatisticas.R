@@ -1,7 +1,6 @@
 library(readxl)
 library(tidyverse)
 
-
 sin2018 <- read_excel("data/sinopses_estatisticas_educacao_basica/Sinopse_Estatistica_da_Educação_Basica_2018.xlsx", 
                       sheet = "Ensino Médio 1.25",
                       col_names = FALSE,
@@ -79,8 +78,6 @@ sin2020 <- sin2020 %>%
                values_to = "n") %>% 
   mutate(ano = "2020")
 
-
-
 sin2021 <- read_excel("data/sinopses_estatisticas_educacao_basica/Sinopse_Estatistica_da_Educação_Basica_2021.xlsx", 
                       sheet = "Ensino Médio 1.25",
                       col_names = FALSE,
@@ -106,6 +103,14 @@ sin2021 <- sin2021 %>%
                values_to = "n") %>% 
   mutate(ano = "2021")
 
-sin2018 %>% 
+sinopse <- sin2018 %>% 
   bind_rows(sin2019, sin2020, sin2021) %>% 
-  write.csv(., file = "sample/sinopse.csv")
+  mutate(regiao = as_factor(regiao),
+         regiao = fct_collapse(regiao,
+                               "N" = "Norte",
+                               "NE" = "Nordeste",
+                               "SE" = "Sudeste",
+                               "S" = "Sul",
+                               "CO" = "Centro-Oeste"))
+
+save(sinopse, file = "sample/sinopse.RData")
