@@ -4,11 +4,9 @@ library(tidyverse)
 setwd("C:/Dev/_INSPER/IC_ENEM")
 memory.limit(24576)
 
-n <- 1e+05 # Sample size
-
 # 2018 ---------------
 # Loading 2018 microdata
-ENEM_2018 <- data.table::fread(input='microdados_enem_2018/DADOS/MICRODADOS_ENEM_2018.csv',
+ENEM_2018 <- data.table::fread(input='data/microdados_enem_2018/DADOS/MICRODADOS_ENEM_2018.csv',
                                integer64='character',
                                skip=0,  #Ler do inicio
                                nrow=-1, #Ler todos os registros
@@ -17,17 +15,26 @@ ENEM_2018 <- data.table::fread(input='microdados_enem_2018/DADOS/MICRODADOS_ENEM
                                showProgress = TRUE)
 
 # Sampling
-sample_2018 <- ENEM_2018[Q002 != "H" & TP_COR_RACA != 0 & TP_ST_CONCLUSAO == 2 & TP_ESCOLA %in% 2:4
-                         & !is.na(NU_NOTA_CH) & !is.na(NU_NOTA_CN) & !is.na(NU_NOTA_LC) & !is.na(NU_NOTA_MT) & !is.na(NU_NOTA_REDACAO)
-                         & TP_PRESENCA_CN & TP_PRESENCA_CH & TP_PRESENCA_LC & TP_PRESENCA_MT,
-                         .(NU_INSCRICAO, TP_COR_RACA, Q002, CO_MUNICIPIO_PROVA, Q025, NU_ANO, TP_ESCOLA,
-                           NU_NOTA_CH, NU_NOTA_CN, NU_NOTA_LC, NU_NOTA_MT, NU_NOTA_REDACAO)]
+# sample_2018 <- ENEM_2018[Q002 != "H" & TP_COR_RACA != 0 & TP_ST_CONCLUSAO == 2 & TP_ESCOLA %in% 2:4
+#                          & !is.na(NU_NOTA_CH) & !is.na(NU_NOTA_CN) & !is.na(NU_NOTA_LC) & !is.na(NU_NOTA_MT) & !is.na(NU_NOTA_REDACAO)
+#                          & TP_PRESENCA_CN & TP_PRESENCA_CH & TP_PRESENCA_LC & TP_PRESENCA_MT,
+#                          .(NU_INSCRICAO, TP_COR_RACA, Q002, CO_MUNICIPIO_PROVA, Q025, NU_ANO, TP_ESCOLA,
+#                            NU_NOTA_CH, NU_NOTA_CN, NU_NOTA_LC, NU_NOTA_MT, NU_NOTA_REDACAO)]
+sample_2018 <- ENEM_2018[Q002 != "H" & TP_COR_RACA != 0 & TP_ESCOLA %in% 2:4 & TP_ST_CONCLUSAO == 2,
+                         .(NU_INSCRICAO, TP_COR_RACA, Q002, CO_MUNICIPIO_PROVA, Q025, NU_ANO, TP_ESCOLA, TP_DEPENDENCIA_ADM_ESC,
+                           NU_NOTA_CH, NU_NOTA_CN, NU_NOTA_LC, NU_NOTA_MT, NU_NOTA_REDACAO,
+                           TP_PRESENCA_CH, TP_PRESENCA_CN, TP_PRESENCA_LC, TP_PRESENCA_MT)]
+sample_2018 <- ENEM_2018[TP_ST_CONCLUSAO == 2,
+                         .(NU_INSCRICAO, TP_COR_RACA, Q002, CO_MUNICIPIO_PROVA, Q025, NU_ANO,
+                           TP_ESCOLA, TP_DEPENDENCIA_ADM_ESC,
+                           NU_NOTA_CH, NU_NOTA_CN, NU_NOTA_LC, NU_NOTA_MT, NU_NOTA_REDACAO,
+                           TP_PRESENCA_CH, TP_PRESENCA_CN, TP_PRESENCA_LC, TP_PRESENCA_MT)]
 
 rm(ENEM_2018)
 
 # 2019 ---------------
 # Loading 2019 microdata
-ENEM_2019 <- data.table::fread(input='microdados_enem_2019/DADOS/MICRODADOS_ENEM_2019.csv',
+ENEM_2019 <- data.table::fread(input='data/microdados_enem_2019/DADOS/MICRODADOS_ENEM_2019.csv',
                                integer64='character',
                                skip=0,  #Ler do inicio
                                nrow=-1, #Ler todos os registros
@@ -36,17 +43,26 @@ ENEM_2019 <- data.table::fread(input='microdados_enem_2019/DADOS/MICRODADOS_ENEM
                                showProgress = TRUE)
 
 # Sampling
-sample_2019 <- ENEM_2019[Q002 != "H" & TP_COR_RACA != 0 & TP_ST_CONCLUSAO == 2 & TP_ESCOLA %in% 2:4
-                         & !is.na(NU_NOTA_CH) & !is.na(NU_NOTA_CN) & !is.na(NU_NOTA_LC) & !is.na(NU_NOTA_MT) & !is.na(NU_NOTA_REDACAO)
-                         & TP_PRESENCA_CN & TP_PRESENCA_CH & TP_PRESENCA_LC & TP_PRESENCA_MT,
-                         .(NU_INSCRICAO, TP_COR_RACA, Q002, CO_MUNICIPIO_PROVA, Q025, NU_ANO, TP_ESCOLA,
-                           NU_NOTA_CH, NU_NOTA_CN, NU_NOTA_LC, NU_NOTA_MT, NU_NOTA_REDACAO)]
+# sample_2019 <- ENEM_2019[Q002 != "H" & TP_COR_RACA != 0 & TP_ST_CONCLUSAO == 2 & TP_ESCOLA %in% 2:4
+#                          & !is.na(NU_NOTA_CH) & !is.na(NU_NOTA_CN) & !is.na(NU_NOTA_LC) & !is.na(NU_NOTA_MT) & !is.na(NU_NOTA_REDACAO)
+#                          & TP_PRESENCA_CN & TP_PRESENCA_CH & TP_PRESENCA_LC & TP_PRESENCA_MT,
+#                          .(NU_INSCRICAO, TP_COR_RACA, Q002, CO_MUNICIPIO_PROVA, Q025, NU_ANO, TP_ESCOLA,
+#                            NU_NOTA_CH, NU_NOTA_CN, NU_NOTA_LC, NU_NOTA_MT, NU_NOTA_REDACAO)]
+sample_2019 <- ENEM_2019[Q002 != "H" & TP_COR_RACA != 0 & TP_ST_CONCLUSAO == 2 & TP_ESCOLA %in% 2:4,
+                         .(NU_INSCRICAO, TP_COR_RACA, Q002, CO_MUNICIPIO_PROVA, Q025, NU_ANO,
+                           TP_ESCOLA, TP_DEPENDENCIA_ADM_ESC,
+                           NU_NOTA_CH, NU_NOTA_CN, NU_NOTA_LC, NU_NOTA_MT, NU_NOTA_REDACAO,
+                           TP_PRESENCA_CH, TP_PRESENCA_CN, TP_PRESENCA_LC, TP_PRESENCA_MT)]
+sample_2019 <- ENEM_2019[TP_ST_CONCLUSAO == 2,
+                         .(NU_INSCRICAO, TP_COR_RACA, Q002, CO_MUNICIPIO_PROVA, Q025, NU_ANO, TP_ESCOLA, TP_DEPENDENCIA_ADM_ESC,
+                           NU_NOTA_CH, NU_NOTA_CN, NU_NOTA_LC, NU_NOTA_MT, NU_NOTA_REDACAO,
+                           TP_PRESENCA_CH, TP_PRESENCA_CN, TP_PRESENCA_LC, TP_PRESENCA_MT)]
 
 rm(ENEM_2019)
 
 # 2020 ---------------
 # Loading 2020 microdata
-ENEM_2020 <- data.table::fread(input='microdados_enem_2020/DADOS/MICRODADOS_ENEM_2020.csv',
+ENEM_2020 <- data.table::fread(input='data/microdados_enem_2020/DADOS/MICRODADOS_ENEM_2020.csv',
                                integer64='character',
                                skip=0,  #Ler do inicio
                                nrow=-1, #Ler todos os registros
@@ -55,17 +71,26 @@ ENEM_2020 <- data.table::fread(input='microdados_enem_2020/DADOS/MICRODADOS_ENEM
                                showProgress = TRUE)
 
 # Sampling
-sample_2020 <- ENEM_2020[Q002 != "H" & TP_COR_RACA != 0 & TP_ST_CONCLUSAO == 2 & TP_ESCOLA %in% 2:4
-                         & !is.na(NU_NOTA_CH) & !is.na(NU_NOTA_CN) & !is.na(NU_NOTA_LC) & !is.na(NU_NOTA_MT) & !is.na(NU_NOTA_REDACAO)
-                         & TP_PRESENCA_CN & TP_PRESENCA_CH & TP_PRESENCA_LC & TP_PRESENCA_MT,
-                         .(NU_INSCRICAO, TP_COR_RACA, Q002, CO_MUNICIPIO_PROVA, Q025, NU_ANO, TP_ESCOLA,
-                           NU_NOTA_CH, NU_NOTA_CN, NU_NOTA_LC, NU_NOTA_MT, NU_NOTA_REDACAO)]
+# sample_2020 <- ENEM_2020[Q002 != "H" & TP_COR_RACA != 0 & TP_ST_CONCLUSAO == 2 & TP_ESCOLA %in% 2:4
+#                          & !is.na(NU_NOTA_CH) & !is.na(NU_NOTA_CN) & !is.na(NU_NOTA_LC) & !is.na(NU_NOTA_MT) & !is.na(NU_NOTA_REDACAO)
+#                          & TP_PRESENCA_CN & TP_PRESENCA_CH & TP_PRESENCA_LC & TP_PRESENCA_MT,
+#                          .(NU_INSCRICAO, TP_COR_RACA, Q002, CO_MUNICIPIO_PROVA, Q025, NU_ANO, TP_ESCOLA,
+#                            NU_NOTA_CH, NU_NOTA_CN, NU_NOTA_LC, NU_NOTA_MT, NU_NOTA_REDACAO)]
+sample_2020 <- ENEM_2020[Q002 != "H" & TP_COR_RACA != 0 & TP_ST_CONCLUSAO == 2 & TP_ESCOLA %in% 2:4,
+                         .(NU_INSCRICAO, TP_COR_RACA, Q002, CO_MUNICIPIO_PROVA, Q025, NU_ANO, TP_ESCOLA, TP_DEPENDENCIA_ADM_ESC,
+                           NU_NOTA_CH, NU_NOTA_CN, NU_NOTA_LC, NU_NOTA_MT, NU_NOTA_REDACAO,
+                           TP_PRESENCA_CH, TP_PRESENCA_CN, TP_PRESENCA_LC, TP_PRESENCA_MT)]
+sample_2020 <- ENEM_2020[TP_ST_CONCLUSAO == 2,
+                         .(NU_INSCRICAO, TP_COR_RACA, Q002, CO_MUNICIPIO_PROVA, Q025, NU_ANO,
+                           TP_ESCOLA, TP_DEPENDENCIA_ADM_ESC,
+                           NU_NOTA_CH, NU_NOTA_CN, NU_NOTA_LC, NU_NOTA_MT, NU_NOTA_REDACAO,
+                           TP_PRESENCA_CH, TP_PRESENCA_CN, TP_PRESENCA_LC, TP_PRESENCA_MT)]
 
 rm(ENEM_2020)
 
 # 2021 ---------------
 # Loading 2021 microdata
-ENEM_2021 <- data.table::fread(input='microdados_enem_2021/DADOS/MICRODADOS_ENEM_2021.csv',
+ENEM_2021 <- data.table::fread(input='data/microdados_enem_2021/DADOS/MICRODADOS_ENEM_2021.csv',
                                integer64='character',
                                skip=0,  #Ler do inicio
                                nrow=-1, #Ler todos os registros
@@ -74,24 +99,76 @@ ENEM_2021 <- data.table::fread(input='microdados_enem_2021/DADOS/MICRODADOS_ENEM
                                showProgress = TRUE)
 
 # Sampling
-sample_2021 <- ENEM_2021[Q002 != "H" & TP_COR_RACA != 0 & TP_ST_CONCLUSAO == 2 & TP_ESCOLA %in% 2:4
-                         & !is.na(NU_NOTA_CH) & !is.na(NU_NOTA_CN) & !is.na(NU_NOTA_LC) & !is.na(NU_NOTA_MT) & !is.na(NU_NOTA_REDACAO)
-                         & TP_PRESENCA_CN & TP_PRESENCA_CH & TP_PRESENCA_LC & TP_PRESENCA_MT,
-                         .(NU_INSCRICAO, TP_COR_RACA, Q002, CO_MUNICIPIO_PROVA, Q025, NU_ANO, TP_ESCOLA,
-                           NU_NOTA_CH, NU_NOTA_CN, NU_NOTA_LC, NU_NOTA_MT, NU_NOTA_REDACAO)]
+# sample_2021 <- ENEM_2021[Q002 != "H" & TP_COR_RACA != 0 & TP_ST_CONCLUSAO == 2 & TP_ESCOLA %in% 2:4
+#                          & !is.na(NU_NOTA_CH) & !is.na(NU_NOTA_CN) & !is.na(NU_NOTA_LC) & !is.na(NU_NOTA_MT) & !is.na(NU_NOTA_REDACAO)
+#                          & TP_PRESENCA_CN & TP_PRESENCA_CH & TP_PRESENCA_LC & TP_PRESENCA_MT,
+#                          .(NU_INSCRICAO, TP_COR_RACA, Q002, CO_MUNICIPIO_PROVA, Q025, NU_ANO, TP_ESCOLA,
+#                            NU_NOTA_CH, NU_NOTA_CN, NU_NOTA_LC, NU_NOTA_MT, NU_NOTA_REDACAO)]
+sample_2021 <- ENEM_2021[Q002 != "H" & TP_COR_RACA != 0 & TP_ST_CONCLUSAO == 2 & TP_ESCOLA %in% 2:4,
+                         .(NU_INSCRICAO, TP_COR_RACA, Q002, CO_MUNICIPIO_PROVA, Q025, NU_ANO, TP_ESCOLA, TP_DEPENDENCIA_ADM_ESC,
+                           NU_NOTA_CH, NU_NOTA_CN, NU_NOTA_LC, NU_NOTA_MT, NU_NOTA_REDACAO,
+                           TP_PRESENCA_CH, TP_PRESENCA_CN, TP_PRESENCA_LC, TP_PRESENCA_MT)]
+sample_2021 <- ENEM_2021[TP_ST_CONCLUSAO == 2,
+                         .(NU_INSCRICAO, TP_COR_RACA, Q002, CO_MUNICIPIO_PROVA, Q025, NU_ANO,
+                           TP_ESCOLA, TP_DEPENDENCIA_ADM_ESC,
+                           NU_NOTA_CH, NU_NOTA_CN, NU_NOTA_LC, NU_NOTA_MT, NU_NOTA_REDACAO,
+                           TP_PRESENCA_CH, TP_PRESENCA_CN, TP_PRESENCA_LC, TP_PRESENCA_MT)]
 
 rm(ENEM_2021)
 
 
 # Full ---------------
 
-sample <- rbindlist(list(sample_2018, sample_2019, sample_2020, sample_2021), fill = TRUE)
-data.table::fwrite(sample, file="sample/sample_c2.csv")
+sample_u <- rbindlist(list(sample_2018, sample_2019, sample_2020, sample_2021), fill = TRUE)
+save(sample_u, file = "sample/sample_u.RData")
 
-sample <- data.table::fread(input='sample/sample1.csv',
-                            integer64='character',
-                            skip=0,  #Ler do inicio
-                            nrow=-1, #Ler todos os registros
-                            na.strings = "",
-                            encoding = 'Latin-1',
-                            showProgress = TRUE)
+load("sample/sample_u.RData")
+sample <- sample %>% 
+  as_tibble() %>% 
+  rename(ano = NU_ANO, raca = TP_COR_RACA, escola = TP_ESCOLA, dep_adm = TP_DEPENDENCIA_ADM_ESC,
+         educ_mae = Q002, internet = Q025,
+         nota_ch = NU_NOTA_CH, nota_cn = NU_NOTA_CN, nota_lc = NU_NOTA_LC, nota_mt = NU_NOTA_MT, 
+         nota_re = NU_NOTA_REDACAO) %>% 
+  mutate(regiao = substr(as.character(CO_MUNICIPIO_PROVA), 1, 1),
+         educ_mae = replace_na(educ_mae, "H"),
+         dep_adm = replace_na(dep_adm, 0),
+         internet = replace_na(internet, "nd"),
+         across(c(regiao, escola, dep_adm, raca), as_factor),
+         regiao = fct_collapse(fct_relevel(regiao, c(as.character(1:5))),
+                               "N" = "1",
+                               "NE" = "2",
+                               "SE" = "3",
+                               "S" = "4",
+                               "CO" = "5"),
+         escola = fct_collapse(escola,
+                               "publ" = "2",
+                               "priv" = c("3", "4"),
+                               "nd" = "1"),
+         dep_adm = fct_collapse(dep_adm,
+                                "fed" = "1",
+                                "est" = "2",
+                                "mun" = "3",
+                                "pri" = "4",
+                                "nd" = "0"),
+         raca = fct_collapse(raca,
+                             "bra" = c("1", "4"),
+                             "pre" = c("2", "3", "5"),
+                             "nd" = "0"),
+         nota = (nota_ch + nota_cn + nota_lc + nota_mt + nota_re) / 5,
+         participante = !is.na(nota),
+         educ_mae = fct_collapse(fct_relevel(educ_mae, c(LETTERS[1:7])),
+                                 "fund_inc" = c("A", "B", "C"),
+                                 "fund" = "D",
+                                 "med" = "E",
+                                 "sup" = c("F", "G"),
+                                 "nd" = "H"),
+         internet = fct_collapse(fct_relevel(internet, c(LETTERS[1:2])),
+                                 "S" = "B",
+                                 "N" = "A")) %>% 
+  dplyr::select(ano, raca, escola, dep_adm, educ_mae, internet, regiao, participante,
+         nota, nota_ch, nota_cn, nota_lc, nota_mt, nota_re)
+save(sample, file = "sample/sample.RData")
+
+sample %>% 
+  count(internet)
+

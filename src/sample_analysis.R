@@ -2,139 +2,120 @@ library(tidyverse)
 library(MASS)
 library(olsrr)
 library(broom)
+library(modelsummary)
+library(ROCit)
 
-sample <- data.table::fread(input='sample/sample_c2.csv',
-                            integer64='character',
-                            skip=0,  #Ler do inicio
-                            nrow=-1, #Ler todos os registros
-                            na.strings = "",
-                            encoding = 'Latin-1',
-                            showProgress = TRUE)
-
-
-# sample <- sample %>% 
-#   as_tibble() %>% 
-#   mutate(across(c(TP_COR_RACA, TP_ESCOLA, Q002, Q025, NU_ANO), as_factor)) %>% 
-#   mutate(TP_COR_RACA = fct_relevel(TP_COR_RACA, c(as.character(1:5))),
-#          TP_ESCOLA = fct_relevel(TP_ESCOLA, c(as.character(2:4))),
-#          Q002 = fct_relevel(Q002, c(LETTERS[1:7])),
-#          Q025 = fct_relevel(Q025, c(LETTERS[1:2]))) %>% 
-#   mutate(TP_COR_RACA = fct_collapse(TP_COR_RACA,
-#                                     "Branca/Amarela" = c("1", "4"),
-#                                     "Preta/Parda/Indígena" = c("2", "3", "5")),
-#          TP_ESCOLA = fct_collapse(TP_ESCOLA,
-#                                   "Pública" = "2",
-#                                   "Privada" = c("3", "4")),
-#          Q002 = fct_collapse(Q002,
-#                              "Fundamental incompleto" = c("A", "B", "C"),
-#                              "Fundamental completo" = "D",
-#                              "Médio completo" = "E",
-#                              "Superior completo" = c("F", "G")),
-#          Q025 = fct_collapse(Q025,
-#                              "Sim" = "B",
-#                              "Não" = "A"))
+load("sample/sample.RData")
 
 sample <- sample %>% 
-  as_tibble() %>% 
-  mutate(across(c(TP_COR_RACA, TP_ESCOLA, Q002, Q025), as_factor)) %>% 
-  mutate(TP_COR_RACA = fct_relevel(TP_COR_RACA, c(as.character(1:5))),
-         TP_COR_RACA = fct_collapse(TP_COR_RACA,
-                                    "bra" = c("1", "4"),
-                                    "pre" = c("2", "3", "5")),
-         TP_ESCOLA = fct_relevel(TP_ESCOLA, c(as.character(2:4))),
-         TP_ESCOLA = fct_collapse(TP_ESCOLA,
-                                  "publ" = "2",
-                                  "priv" = c("3", "4")),
-         Q002 = fct_relevel(Q002, c(LETTERS[1:7])),
-         Q002 = fct_collapse(Q002,
-                             "fund_inc" = c("A", "B", "C"),
-                             "fund" = "D",
-                             "med" = "E",
-                             "sup" = c("F", "G")),
-         Q025 = fct_relevel(Q025, c(LETTERS[1:2])),
-         Q025 = fct_collapse(Q025,
-                             "S" = "B",
-                             "N" = "A"))
+  filter(participante & raca != "nd" & escola != "nd" & educ_mae != "nd" & internet != "nd") %>% 
+  mutate(ano_18 = ano == 2018,
+         ano_19 = ano == 2019,
+         ano_20 = ano == 2020,
+         ano_21 = ano == 2021,
+         across(c(ano_18, ano_19, ano_20, ano_21), as_factor))
 
-sample_reg <- sample %>% 
-  mutate(REGIAO = substr(as.character(CO_MUNICIPIO_PROVA), 1, 1),
-         across(REGIAO, as_factor),
-         REGIAO = fct_relevel(REGIAO, c(as.character(1:5))),
-         REGIAO = fct_collapse(REGIAO,
-                               "N" = "1",
-                               "NE" = "2",
-                               "SE" = "3",
-                               "S" = "4",
-                               "CO" = "5"),
-         ANO_18 = NU_ANO == 2018,
-         ANO_19 = NU_ANO == 2019,
-         ANO_20 = NU_ANO == 2020,
-         ANO_21 = NU_ANO == 2021,
-         NU_NOTA = (NU_NOTA_CH + NU_NOTA_CN + NU_NOTA_LC + NU_NOTA_MT + NU_NOTA_REDACAO) / 5,
-         across(c(ANO_18, ANO_19, ANO_20, ANO_21), as_factor)) %>%
-  mutate(RACA = TP_COR_RACA, EDUC_MAE = Q002, INTERNET = Q025, ESCOLA = TP_ESCOLA) %>% 
-  dplyr::select(RACA, EDUC_MAE, INTERNET, REGIAO, ESCOLA, ANO_18, ANO_19, ANO_20, ANO_21,
-                NU_NOTA_CH, NU_NOTA_CN, NU_NOTA_LC, NU_NOTA_MT, NU_NOTA_REDACAO, NU_NOTA)
+# fit <- lm(NU_NOTA ~ RACA + EDUC_MAE + REGIAO + ESCOLA + INTERNET + NU_ANO +
+#             COVID : (RACA + EDUC_MAE + REGIAO + ESCOLA + INTERNET), 
+#             data = sample_reg)
 
-fit <- lm(NU_NOTA ~ RACA + EDUC_MAE + REGIAO + ESCOLA + INTERNET + NU_ANO +
-            COVID : (RACA + EDUC_MAE + REGIAO + ESCOLA + INTERNET), 
-            data = sample_reg)
-
-
-fit <- lm(NU_NOTA ~ ANO_19 + ANO_20 + ANO_21 +
-            ANO_20 * (RACA + EDUC_MAE + REGIAO + ESCOLA + INTERNET) +
-            ANO_21 * (RACA + EDUC_MAE + REGIAO + ESCOLA + INTERNET), 
-          data = sample_reg)
+fit <- lm(nota ~ raca + educ_mae + regiao + escola + internet + ano_19 + ano_20 + ano_21 +
+            ano_20 * (raca + educ_mae + regiao + escola + internet) +
+            ano_21 * (raca + educ_mae + regiao + escola + internet), 
+          data = sample)
 summary(fit)
 summ(fit, scale = TRUE, digits = 3, robust = TRUE)
+modelsummary(fit, stars = TRUE)
 
-predict(fit, data.frame(
-  RACA = "Preta/Parda/Indígena",
-  EDUC_MAE = "Fundamental incompleto",
-  REGIAO = "Norte",
-  ESCOLA = "Pública",
-  INTERNET = "Não",
-  ANO_2019 = "TRUE",
-  COVID_2020 = "FALSE",
-  COVID_2021 = "FALSE"
-), interval = c("conf"), se.fit = TRUE)
+predict()
 
-predict(fit, data.frame(
-  RACA = "Branca/Amarela",
-  EDUC_MAE = "Superior completo",
-  REGIAO = "Sudeste",
-  ESCOLA = "Privada",
-  INTERNET = "Sim",
-  ANO_2019 = "TRUE",
-  COVID_2020 = "FALSE",
-  COVID_2021 = "FALSE"
-))
-
-fit.ch <- lm(NU_NOTA_CH ~ RACA + EDUC_MAE + REGIAO + ESCOLA + INTERNET + NU_ANO +
-               COVID : (RACA + EDUC_MAE + REGIAO + ESCOLA + INTERNET), 
-             data = sample_reg)
+fit.ch <- lm(nota_ch ~ raca + educ_mae + regiao + escola + internet + ano_19 + ano_20 + ano_21 +
+               ano_20 * (raca + educ_mae + regiao + escola + internet) +
+               ano_21 * (raca + educ_mae + regiao + escola + internet), 
+             data = sample)
 summary(fit.ch)
 
-fit.cn <- lm(NU_NOTA_CN ~ RACA + EDUC_MAE + REGIAO + ESCOLA + INTERNET + NU_ANO +
-               COVID : (RACA + EDUC_MAE + REGIAO + ESCOLA + INTERNET), 
-             data = sample_reg)
+fit.cn <- lm(nota_cn ~ raca + educ_mae + regiao + escola + internet + ano_19 + ano_20 + ano_21 +
+               ano_20 * (raca + educ_mae + regiao + escola + internet) +
+               ano_21 * (raca + educ_mae + regiao + escola + internet), 
+             data = sample)
 summary(fit.cn)
 
-fit.lc <- lm(NU_NOTA_LC ~ RACA + EDUC_MAE + REGIAO + ESCOLA + INTERNET + NU_ANO +
-               COVID : (RACA + EDUC_MAE + REGIAO + ESCOLA + INTERNET), 
-             data = sample_reg)
+fit.lc <- lm(nota_lc ~ raca + educ_mae + regiao + escola + internet + ano_19 + ano_20 + ano_21 +
+               ano_20 * (raca + educ_mae + regiao + escola + internet) +
+               ano_21 * (raca + educ_mae + regiao + escola + internet), 
+             data = sample)
 summary(fit.lc)
 
-fit.mt <- lm(NU_NOTA_MT ~ RACA + EDUC_MAE + REGIAO + ESCOLA + INTERNET + NU_ANO +
-               COVID : (RACA + EDUC_MAE + REGIAO + ESCOLA + INTERNET), 
-             data = sample_reg)
+fit.mt <- lm(nota_mt ~ raca + educ_mae + regiao + escola + internet + ano_19 + ano_20 + ano_21 +
+               ano_20 * (raca + educ_mae + regiao + escola + internet) +
+               ano_21 * (raca + educ_mae + regiao + escola + internet), 
+             data = sample)
 summary(fit.mt)
 
+fit.re <- lm(nota_re ~ raca + educ_mae + regiao + escola + internet + ano_19 + ano_20 + ano_21 +
+               ano_20 * (raca + educ_mae + regiao + escola + internet) +
+               ano_21 * (raca + educ_mae + regiao + escola + internet), 
+             data = sample)
+summary(fit.re)
 
-saveRDS(model, file = "model/model1.rda")
+modelsummary(list(fit, fit.ch, fit.cn, fit.lc, fit.mt, fit.re), stars = TRUE)
 
-model <- readRDS(file = "model/model1.rda")
-summary(model)
+ols_test_breusch_pagan(fit)
 
-ols_test_breusch_pagan(model)
+
+fit_re.n <- lm(nota ~ raca + educ_mae + escola + internet + ano_19 + ano_20 + ano_21 +
+                 ano_20 * (raca + educ_mae + escola + internet) +
+                 ano_21 * (raca + educ_mae + escola + internet), 
+               data = sample %>% filter(regiao == "N"))
+summary(fit_re.n)
+
+fit_re.ne <- lm(nota ~ raca + educ_mae + escola + internet + ano_19 + ano_20 + ano_21 +
+                  ano_20 * (raca + educ_mae + escola + internet) +
+                  ano_21 * (raca + educ_mae + escola + internet), 
+                data = sample %>% filter(regiao == "NE"))
+summary(fit_re.ne)
+
+fit_re.co <- lm(nota ~ raca + educ_mae + escola + internet + ano_19 + ano_20 + ano_21 +
+                  ano_20 * (raca + educ_mae + escola + internet) +
+                  ano_21 * (raca + educ_mae + escola + internet), 
+                data = sample %>% filter(regiao == "CO"))
+summary(fit_re.co)
+
+fit_re.se <- lm(nota ~ raca + educ_mae + escola + internet + ano_19 + ano_20 + ano_21 +
+                  ano_20 * (raca + educ_mae + escola + internet) +
+                  ano_21 * (raca + educ_mae + escola + internet), 
+                data = sample %>% filter(regiao == "SE"))
+summary(fit_re.se)
+
+fit_re.s <- lm(nota ~ raca + educ_mae + escola + internet + ano_19 + ano_20 + ano_21 +
+                 ano_20 * (raca + educ_mae + escola + internet) +
+                 ano_21 * (raca + educ_mae + escola + internet), 
+               data = sample %>% filter(regiao == "S"))
+summary(fit_re.s)
+
+modelsummary(list(fit_re.n, fit_re.ne, fit_re.co, fit_re.se, fit_re.s), stars = TRUE)
+
+
+load("sample/sample.RData")
+sample <- sample %>% 
+  filter(raca != "nd" & escola != "nd" & educ_mae != "nd" & internet != "nd") %>% 
+  mutate(ano_18 = ano == 2018,
+         ano_19 = ano == 2019,
+         ano_20 = ano == 2020,
+         ano_21 = ano == 2021,
+         across(c(ano_18, ano_19, ano_20, ano_21), as_factor))
+
+fit_p <- glm(as.integer(participante) ~ raca + educ_mae + regiao + escola + internet + 
+               ano_19 + ano_20 + ano_21 +
+               ano_20 * (raca + educ_mae + regiao + escola + internet) +
+               ano_21 * (raca + educ_mae + regiao + escola + internet), 
+             family = binomial(link='logit'),
+             data = sample)
+summary(fit_p)
+
+roc <- rocit(score = fit_p$fitted.values, class = fit_p$y)
+plot(roc)
+
+
 
