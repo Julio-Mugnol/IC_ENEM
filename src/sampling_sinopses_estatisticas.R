@@ -114,3 +114,9 @@ sinopse <- sin2018 %>%
                                "CO" = "Centro-Oeste"))
 
 save(sinopse, file = "sample/sinopse.RData")
+
+sinopse %>% 
+  group_by(ano) %>% 
+  summarise(n = sum(n))
+
+
