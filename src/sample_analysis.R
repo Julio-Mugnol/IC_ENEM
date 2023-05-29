@@ -15,10 +15,6 @@ sample <- sample %>%
          ano_21 = ano == 2021,
          across(c(ano_18, ano_19, ano_20, ano_21), as_factor))
 
-# fit <- lm(NU_NOTA ~ RACA + EDUC_MAE + REGIAO + ESCOLA + INTERNET + NU_ANO +
-#             COVID : (RACA + EDUC_MAE + REGIAO + ESCOLA + INTERNET), 
-#             data = sample_reg)
-
 fit <- lm(nota ~ raca + educ_mae + regiao + escola + internet + ano_19 + ano_20 + ano_21 +
             ano_20 * (raca + educ_mae + regiao + escola + internet) +
             ano_21 * (raca + educ_mae + regiao + escola + internet), 
@@ -59,9 +55,32 @@ fit.re <- lm(nota_re ~ raca + educ_mae + regiao + escola + internet + ano_19 + a
              data = sample)
 summary(fit.re)
 
-modelsummary(list(fit, fit.ch, fit.cn, fit.lc, fit.mt, fit.re), stars = TRUE)
+modelsummary(list(
+    "Média Geral"          = fit,
+    "Ciências Humanas"     = fit.ch,
+    "Ciências da Natureza" = fit.cn,
+    "Linguagens e Códigos" = fit.lc,
+    "Matemática"           = fit.mt,
+    "Redação"              = fit.re
+  ), statistic = c("({std.error})", 
+                 "p = {p.value}"))
+modelsummary(list(
+  "Média Geral"          = fit,
+  "Ciências Humanas"     = fit.ch,
+  "Ciências da Natureza" = fit.cn,
+  "Linguagens e Códigos" = fit.lc,
+  "Matemática"           = fit.mt,
+  "Redação"              = fit.re
+), stars = c("*" = .1, "**" = .05, "***" = .01))
 
-ols_test_breusch_pagan(fit)
+sample %>% 
+  ggplot(aes(x = factor(ano), y = nota)) +
+    geom_boxplot()
+
+sample %>% 
+  filter(nota == 0) %>% 
+  View()
+
 
 
 fit_re.n <- lm(nota ~ raca + educ_mae + escola + internet + ano_19 + ano_20 + ano_21 +
