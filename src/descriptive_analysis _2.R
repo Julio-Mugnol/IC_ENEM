@@ -1,6 +1,7 @@
 library(tidyverse)
 library(ggthemes)
 library(scales)
+library(RColorBrewer)
 
 
 load("sample/catalog.RData")
@@ -15,9 +16,9 @@ theme_set(theme_tufte() +
                   axis.title = element_text(size = 10),
                   plot.caption = element_text(size = 10, hjust=0)))
 
+palette_raca = c("#9EBCDA", "#810F7C")
+palette_escola = c("#66C2A4", "#2CA25F")
 
-catalog <- catalog %>% 
-  rename(ano = NU_ANO, status = STATUS, regiao = REGIAO, raca = TP_COR_RACA, n = N)
 
 sinopse <- sinopse %>% 
   mutate(across(c(serie, dep_adm), as_factor),
@@ -30,29 +31,23 @@ sinopse <- sinopse %>%
 
 
 catalog %>% 
-  filter(STATUS) %>% 
-  group_by(NU_ANO) %>% 
-  summarise(TOTAL = sum(N)) %>% 
-  mutate(STATUS = "Participantes") %>% 
+  filter(participante) %>% 
+  group_by(ano) %>% 
+  summarise(total = sum(N)) %>% 
+  mutate(status = "Participantes") %>% 
   bind_rows(catalog %>% 
-              group_by(NU_ANO) %>% 
-              summarise(TOTAL = sum(N)) %>% 
-              mutate(STATUS = "Inscritos")) %>%
-  ggplot(aes(NU_ANO, TOTAL, linetype = STATUS)) +
+              group_by(ano) %>% 
+              summarise(total = sum(N)) %>% 
+              mutate(status = "Inscritos")) %>%
+  ggplot(aes(ano, total, linetype = status)) +
     geom_line() +
     scale_y_continuous(labels = unit_format(unit = "M", scale = 1e-6)) +
     scale_x_continuous(breaks = scales::breaks_width(1)) +
     labs(x = "Ano", y = "Número total (milhões)",
-         title = "Gráfico 1 - Inscritos e Participantes no ENEM (2010 a 2021)",
+         title = "Gráfico 1 - Inscritos e Participantes no ENEM (2010 a 2022)",
          linetype = "",
-         caption = "Fonte: INEP") +
-    theme_tufte() +
-    theme(text = element_text(family = "sans"),
-          plot.title = element_text(size = 12),
-          axis.text = element_text(size = 8),
-          axis.title = element_text(size = 10),
-          plot.caption = element_text(size = 10, hjust=0))
-ggsave('plots/1_enr_att_2.png', dpi = 600, height = 10, width = 16, unit = 'cm', bg = 'white')
+         caption = "Fonte: INEP")
+ggsave('plots/1_enr_att.png', dpi = 600, height = 10, width = 16, unit = 'cm', bg = 'white')
 
 sinopse %>% 
   mutate(ano = as.integer(ano)) %>% 
@@ -87,33 +82,24 @@ df_escola <- sinopse %>%
 df_escola %>% 
   ggplot(aes(ano, par_ins, fill = escola)) +
   geom_col(position = "dodge") +
-  scale_fill_discrete(labels = c("Pública", "Privada")) +
+  scale_fill_manual(values = palette_escola,
+                    labels = c("Pública", "Privada")) +
   labs(x = "Ano", y = "Taxa",
-       title = "Gráfico 2 - Taxa de Participação por Inscritos (2019 a 2021)",
+       title = "Gráfico 2 - Taxa de Participantes por Inscritos (2019 a 2022)",
        fill = "Tipo de escola",
-       caption = "Fonte: INEP") +
-  theme_tufte() +
-  theme(text = element_text(family = "sans"),
-        plot.title = element_text(size = 12),
-        axis.text = element_text(size = 8),
-        axis.title = element_text(size = 10),
-        plot.caption = element_text(size = 10, hjust=0))
-# ggsave('plots/1_enr_att_school_2.png', dpi = 600, height = 10, width = 16, unit = 'cm', bg = 'white')
+       caption = "Fonte: INEP")
+ggsave('plots/2_enr_att_school.png', dpi = 600, height = 10, width = 16, unit = 'cm', bg = 'white')
 
 df_escola %>% 
   ggplot(aes(ano, ins_con, fill = escola)) +
   geom_col(position = "dodge") +
-  scale_fill_discrete(labels = c("Pública", "Privada")) +
+  scale_fill_manual(values = palette_escola,
+                    labels = c("Pública", "Privada")) +
   labs(x = "Ano", y = "Taxa",
-       title = "Gráfico 3 - Taxa de Inscrição por Concluintes (2019 a 2021)",
+       title = "Gráfico 3 - Taxa de Inscritos por Concluintes (2019 a 2022)",
        fill = "Tipo de escola",
-       caption = "Fonte: INEP") +
-  theme_tufte() +
-  theme(text = element_text(family = "sans"),
-        plot.title = element_text(size = 12),
-        axis.text = element_text(size = 8),
-        axis.title = element_text(size = 10),
-        plot.caption = element_text(size = 10, hjust=0))
+       caption = "Fonte: INEP")
+ggsave('plots/2_enr_grad_school.png', dpi = 600, height = 10, width = 16, unit = 'cm', bg = 'white')
 
 
 df_regiao <- sinopse %>% 
@@ -134,30 +120,44 @@ df_regiao <- sinopse %>%
 df_regiao %>% 
   ggplot(aes(factor(ano), par_ins, fill = regiao)) +
   geom_col(position = "dodge") +
+  scale_fill_brewer(palette = "Paired",
+                    labels = c("Norte", "Nordeste", "Sudeste", "Sul", "Centro-Oeste")) +
   labs(x = "Ano", y = "Taxa",
-       title = "Gráfico 4 - Taxa de Participação por Inscritos (2018 a 2021)",
+       title = "Gráfico 4 - Taxa de Participação por Inscritos (2018 a 2022)",
        fill = "Região",
-       caption = "Fonte: INEP") +
-  theme_tufte() +
-  theme(text = element_text(family = "sans"),
-        plot.title = element_text(size = 12),
-        axis.text = element_text(size = 8),
-        axis.title = element_text(size = 10),
-        plot.caption = element_text(size = 10, hjust=0))
+       caption = "Fonte: INEP")
+ggsave('plots/2_enr_att_region.png', dpi = 600, height = 10, width = 16, unit = 'cm', bg = 'white')
+
+sample %>% 
+  filter(participante, raca != "nd") %>% 
+  group_by(ano, raca) %>% 
+  summarise(participantes = n()) %>% 
+  left_join(sample %>% 
+              filter(raca != "nd") %>% 
+              group_by(ano, raca) %>% 
+              summarise(inscritos = n())) %>% 
+  mutate(par_ins = participantes / inscritos) %>% 
+  ggplot(aes(factor(ano), par_ins, fill = raca)) +
+  geom_col(position = "dodge") +
+  scale_fill_manual(values = palette_raca,
+                    labels = c("Branco/Amarelo", "Preto/Pardo/Indígena")) +
+  labs(x = "Ano", y = "Taxa",
+       title = "Gráfico 5 - Taxa de Participação por Inscritos (2018 a 2022)",
+       fill = "Raça",
+       caption = "Fonte: INEP")
+ggsave('plots/2_enr_att_race.png', dpi = 600, height = 10, width = 16, unit = 'cm', bg = 'white')
 
 df_regiao %>% 
   ggplot(aes(factor(ano), nota, group = regiao, color = regiao)) +
   geom_line(size = .7) +
+  geom_point() +
+  scale_color_brewer(palette = "Paired",
+                     labels = c("Norte", "Nordeste", "Sudeste", "Sul", "Centro-Oeste")) +
   labs(x = "Ano", y = "Nota média",
-       title = "Gráfico 5 - Nota média por região (2018 a 2021)",
+       title = "Gráfico 6 - Nota média por região (2018 a 2022)",
        color = "Região",
-       caption = "Fonte: INEP") +
-  theme_tufte() +
-  theme(text = element_text(family = "sans"),
-        plot.title = element_text(size = 12),
-        axis.text = element_text(size = 8),
-        axis.title = element_text(size = 10),
-        plot.caption = element_text(size = 10, hjust=0))
+       caption = "Fonte: INEP")
+ggsave('plots/3_score_region.png', dpi = 600, height = 10, width = 16, unit = 'cm', bg = 'white')
 
 sample %>% 
   filter(participante, raca != "nd") %>% 
@@ -165,13 +165,18 @@ sample %>%
   summarise(nota = mean(nota, na.rm = TRUE)) %>% 
   ggplot(aes(factor(ano), nota, group = raca, color = raca)) +
   geom_line(size = .7) +
-  ylim(c(500, 560)) +
-  scale_color_manual(values = c("black", "gray"),
+  geom_point() +
+  ylim(c(490, 570)) +
+  scale_color_manual(values = palette_raca,
                      labels = c("Branco/Amarelo", "Preto/Pardo/Indígena")) +
   labs(x = "Ano", y = "Nota média",
-       title = "Gráfico 6 - Nota média por raça (2018 a 2021)",
+       title = "Gráfico 7 - Nota média por raça (2018 a 2022)",
        color = "Raça",
        caption = "Fonte: INEP")
+ggsave('plots/3_score_race.png', dpi = 600, height = 10, width = 16, unit = 'cm', bg = 'white')
+
+
+
 
   
   
