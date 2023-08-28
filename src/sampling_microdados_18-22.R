@@ -1,4 +1,3 @@
-library(data.table)
 library(tidyverse)
 
 memory.limit(24576)
@@ -16,7 +15,7 @@ ENEM_2018 <- data.table::fread(input='data/microdados_enem_2018/DADOS/MICRODADOS
 # Sampling
 sample_2018 <- ENEM_2018[TP_ST_CONCLUSAO == 2,
                          .(NU_INSCRICAO, TP_COR_RACA, Q002, CO_MUNICIPIO_PROVA, Q025, NU_ANO,
-                           TP_ESCOLA, TP_DEPENDENCIA_ADM_ESC, TP_SEXO, Q024,
+                           TP_ESCOLA, TP_DEPENDENCIA_ADM_ESC, CO_MUNICIPIO_ESC, TP_SEXO, Q024,
                            NU_NOTA_CH, NU_NOTA_CN, NU_NOTA_LC, NU_NOTA_MT, NU_NOTA_REDACAO,
                            TP_PRESENCA_CH, TP_PRESENCA_CN, TP_PRESENCA_LC, TP_PRESENCA_MT)]
 rm(ENEM_2018)
@@ -34,7 +33,7 @@ ENEM_2019 <- data.table::fread(input='data/microdados_enem_2019/DADOS/MICRODADOS
 # Sampling
 sample_2019 <- ENEM_2019[TP_ST_CONCLUSAO == 2,
                          .(NU_INSCRICAO, TP_COR_RACA, Q002, CO_MUNICIPIO_PROVA, Q025, NU_ANO, 
-                           TP_ESCOLA, TP_DEPENDENCIA_ADM_ESC, TP_SEXO, Q024,
+                           TP_ESCOLA, TP_DEPENDENCIA_ADM_ESC, CO_MUNICIPIO_ESC, TP_SEXO, Q024,
                            NU_NOTA_CH, NU_NOTA_CN, NU_NOTA_LC, NU_NOTA_MT, NU_NOTA_REDACAO,
                            TP_PRESENCA_CH, TP_PRESENCA_CN, TP_PRESENCA_LC, TP_PRESENCA_MT)]
 rm(ENEM_2019)
@@ -52,7 +51,7 @@ ENEM_2020 <- data.table::fread(input='data/microdados_enem_2020/DADOS/MICRODADOS
 # Sampling
 sample_2020 <- ENEM_2020[TP_ST_CONCLUSAO == 2,
                          .(NU_INSCRICAO, TP_COR_RACA, Q002, CO_MUNICIPIO_PROVA, Q025, NU_ANO,
-                           TP_ESCOLA, TP_DEPENDENCIA_ADM_ESC, TP_SEXO, Q024,
+                           TP_ESCOLA, TP_DEPENDENCIA_ADM_ESC, CO_MUNICIPIO_ESC, TP_SEXO, Q024,
                            NU_NOTA_CH, NU_NOTA_CN, NU_NOTA_LC, NU_NOTA_MT, NU_NOTA_REDACAO,
                            TP_PRESENCA_CH, TP_PRESENCA_CN, TP_PRESENCA_LC, TP_PRESENCA_MT)]
 rm(ENEM_2020)
@@ -70,7 +69,7 @@ ENEM_2021 <- data.table::fread(input='data/microdados_enem_2021/DADOS/MICRODADOS
 # Sampling
 sample_2021 <- ENEM_2021[TP_ST_CONCLUSAO == 2,
                          .(NU_INSCRICAO, TP_COR_RACA, Q002, CO_MUNICIPIO_PROVA, Q025, NU_ANO,
-                           TP_ESCOLA, TP_DEPENDENCIA_ADM_ESC, TP_SEXO, Q024,
+                           TP_ESCOLA, TP_DEPENDENCIA_ADM_ESC, CO_MUNICIPIO_ESC, TP_SEXO, Q024,
                            NU_NOTA_CH, NU_NOTA_CN, NU_NOTA_LC, NU_NOTA_MT, NU_NOTA_REDACAO,
                            TP_PRESENCA_CH, TP_PRESENCA_CN, TP_PRESENCA_LC, TP_PRESENCA_MT)]
 rm(ENEM_2021)
@@ -88,7 +87,7 @@ ENEM_2022 <- data.table::fread(input='data/microdados_enem_2022/DADOS/MICRODADOS
 # Sampling
 sample_2022 <- ENEM_2022[TP_ST_CONCLUSAO == 2,
                          .(NU_INSCRICAO, TP_COR_RACA, Q002, CO_MUNICIPIO_PROVA, Q025, NU_ANO,
-                           TP_ESCOLA, TP_DEPENDENCIA_ADM_ESC, TP_SEXO, Q024,
+                           TP_ESCOLA, TP_DEPENDENCIA_ADM_ESC, CO_MUNICIPIO_ESC, TP_SEXO, Q024,
                            NU_NOTA_CH, NU_NOTA_CN, NU_NOTA_LC, NU_NOTA_MT, NU_NOTA_REDACAO,
                            TP_PRESENCA_CH, TP_PRESENCA_CN, TP_PRESENCA_LC, TP_PRESENCA_MT)]
 rm(ENEM_2022)
@@ -111,16 +110,17 @@ sample_u %>%
 sample <- sample_u %>% 
   as_tibble() %>% 
   rename(ano = NU_ANO, raca = TP_COR_RACA, escola = TP_ESCOLA, dep_adm = TP_DEPENDENCIA_ADM_ESC,
-         educ_mae = Q002, internet = Q025, computador = Q024, sexo = TP_SEXO,
+         educ_mae = Q002, internet = Q025, computador = Q024, sexo = TP_SEXO, 
+         muni_prova = CO_MUNICIPIO_PROVA, muni_escola = CO_MUNICIPIO_ESC,
          nota_ch = NU_NOTA_CH, nota_cn = NU_NOTA_CN, nota_lc = NU_NOTA_LC, nota_mt = NU_NOTA_MT, 
          nota_re = NU_NOTA_REDACAO, presenca_ch = TP_PRESENCA_CH, presenca_cn = TP_PRESENCA_CN, 
          presenca_lc = TP_PRESENCA_LC, presenca_mt = TP_PRESENCA_MT) %>% 
-  mutate(regiao = substr(as.character(CO_MUNICIPIO_PROVA), 1, 1),
+  mutate(regiao = substr(as.character(muni_prova), 1, 1),
          educ_mae = replace_na(educ_mae, "H"),
          dep_adm = replace_na(dep_adm, 0),
          internet = replace_na(internet, "nd"),
          computador = replace_na(computador, "nd"),
-         across(c(regiao, escola, dep_adm, raca, sexo), as_factor),
+         across(c(regiao, escola, dep_adm, raca, sexo, muni_prova, muni_escola), as_factor),
          across(c(presenca_ch, presenca_cn, presenca_lc, presenca_mt), ~replace_na(., 0)),
          regiao = fct_collapse(fct_relevel(regiao, c(as.character(1:5))),
                                "N" = "1",
@@ -159,7 +159,7 @@ sample <- sample_u %>%
                                    "S" = "A",
                                    "N" = c("B", "C", "D", "E"),
                                    "nd" = "nd")) %>% 
-  dplyr::select(ano, raca, escola, dep_adm, educ_mae, internet, regiao, participante, presente,
-                sexo, computador, nota, nota_ch, nota_cn, nota_lc, nota_mt, nota_re)
+  dplyr::select(ano, raca, escola, dep_adm, educ_mae, internet, regiao, muni_prova, muni_escola,
+                participante, presente, sexo, computador, nota, nota_ch, nota_cn, nota_lc, nota_mt, nota_re)
 
 save(sample, file = "sample/sample.RData")
