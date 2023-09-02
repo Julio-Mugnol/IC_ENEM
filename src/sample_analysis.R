@@ -22,12 +22,13 @@ fit <- lm(nota ~ raca + sexo + educ_mae + regiao + escola + internet +
             ano * (raca + sexo + educ_mae + regiao + escola + internet), 
           data = sample)
 summary(fit)
+saveRDS(fit, file = "models/fit_nota.rda")
 
 fit_fe <- feols(nota ~ raca + sexo + educ_mae + escola + internet +
                   ano * (raca + sexo + educ_mae + escola + internet) | muni_prova,
                 data = sample)
 summary(fit_fe)
-
+saveRDS(fit_fe, file = "models/fit_nota_fe.rda")
 
 
 load("sample/sample.RData")
@@ -68,36 +69,5 @@ summary(fit_p_mpl_fe)
 
 
 
-# roc <- rocit(score = fit_p2$fitted.values, class = fit_p2$y)
-# plot(roc)
 
-confint(fit, c("racapre", "racapre:ano_20TRUE", "racapre:ano_21TRUE", "racapre:ano_22TRUE")) %>% 
-  as_tibble() %>% 
-  rename("min" = "2.5 %", "max" = "97.5 %") %>% 
-  left_join()
-
-tibble(
-  "racapre" = coefficients(fit)["racapre"]
-)
-
-
-modelplot(fit, coef_map = cm) +
-  coord_flip() +
-  geom_hline(yintercept = 0) +
-  ylim(NA, .5)
-
-modelplot(fit, 
-          coef_map = c("racapre:ano_20TRUE" = 2020,
-                       "racapre:ano_21TRUE" = 2021,
-                       "racapre:ano_22TRUE" = 2022),
-          draw = FALSE) %>% 
-  ggplot(aes(x = term)) +
-  geom_point(aes(y = estimate)) +
-  geom_errorbar(aes(ymin = conf.low, ymax = conf.high), width = 0) +
-  geom_hline(yintercept = 0, linetype = "dashed")
-
-modelplot(fit, coef_map = cm, draw = FALSE) %>% 
-  mutate(estimate = estimate + fit$coefficients["racapre"])
-
-modelplot(fit)
 
