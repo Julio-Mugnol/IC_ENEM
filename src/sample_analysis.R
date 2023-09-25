@@ -24,6 +24,16 @@ fit <- lm(nota ~ raca + sexo + educ_mae + regiao + escola + internet +
 summary(fit)
 saveRDS(fit, file = "models/fit_nota.rda")
 
+# predict.lm(fit, tibble(
+#   raca = c("pre", "bra"),
+#   sexo = c("M", "M"),
+#   educ_mae = c("fund_inc", "sup"),
+#   regiao = c("N", "SE"),
+#   escola = c("publ", "publ"),
+#   internet = c("N", "S"),
+#   ano = c("2020", "2020")
+# ))
+
 fit_fe <- feols(nota ~ raca + sexo + educ_mae + escola + internet +
                   ano * (raca + sexo + educ_mae + escola + internet) | muni_prova,
                 data = sample)
